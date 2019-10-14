@@ -1,8 +1,11 @@
+import { ApolloClient } from 'apollo-client';
 import { ApolloLink } from 'apollo-link';
-import { BOOKS_UPDATE, BookUpdate } from './books';
+import { BOOKS, BOOKS_UPDATE, BooksData, BooksUpdateData } from './books';
 import { booksGetLastModified, booksSetLastModified } from './lastModified';
 
 export default new ApolloLink((operation, forward) => {
+  const context = operation.getContext();
+  const { cache } = context as ApolloClient<object>;
   const booksLastModified = booksGetLastModified();
   const mutatedOperation = operation;
   const { operationName } = operation;
@@ -26,13 +29,17 @@ export default new ApolloLink((operation, forward) => {
       case 'books':
         if (booksLastModified === 0) {
           mutatedData = {
-            books: data.booksUpdate.filter(({ isDeleted }: BookUpdate) => !isDeleted),
+            books: (data as BooksUpdateData).booksUpdate.filter(({ isDeleted }) => !isDeleted),
           };
         } else {
-          // TODO: CACHE
-          mutatedData = {
-            books: [],
-          };
+          const cacheData = cache.readQuery<BooksData>({ query: BOOKS });
+          if (cacheData === null) {
+            break;
+          }
+          // TODO: LOOP THROUGH UPDATE, CREATE, UPDATE, DELETE
+          console.log(cacheData);
+          console.log(data);
+          mutatedData = cacheData;
         }
         booksSetLastModified(1);
         break;

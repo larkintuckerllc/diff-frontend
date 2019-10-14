@@ -14,6 +14,10 @@ export interface BooksData {
   books: Book[];
 }
 
+export interface BooksUpdateData {
+  booksUpdate: BookUpdate[];
+}
+
 export const BOOKS = gql`
   query books {
     books {
