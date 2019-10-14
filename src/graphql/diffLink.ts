@@ -7,6 +7,7 @@ export default new ApolloLink((operation, forward) => {
   const context = operation.getContext();
   const { cache } = context as ApolloClient<object>;
   const booksLastModified = booksGetLastModified();
+  // TODO: MAKE MORE PURE
   const mutatedOperation = operation;
   const { operationName } = operation;
   switch (operationName) {
@@ -37,22 +38,21 @@ export default new ApolloLink((operation, forward) => {
           if (booksCacheData === null) {
             throw new Error(); // UNEXPECTED
           }
+          // TODO: REFACTOR TO BE MORE PURE
           const mutatedBooks = [...booksCacheData.books];
           booksUpdateData.booksUpdate.forEach(bookUpdate => {
-            const bookCacheIndex = booksCacheData.books.findIndex(
-              book => book.id === bookUpdate.id
-            );
-            if (bookCacheIndex === -1 && !bookUpdate.isDeleted) {
+            const bookMutatedIndex = mutatedBooks.findIndex(book => book.id === bookUpdate.id);
+            if (bookMutatedIndex === -1 && !bookUpdate.isDeleted) {
               // CASE CREATE
               const createBook = { ...bookUpdate };
               delete createBook.isDeleted;
               mutatedBooks.push(createBook);
-            } else if (bookUpdate.isDeleted) {
+            } else if (bookMutatedIndex !== -1 && bookUpdate.isDeleted) {
               // CASE DELETE
-              mutatedBooks.splice(bookCacheIndex, 1);
-            } else {
+              mutatedBooks.splice(bookMutatedIndex, 1);
+            } else if (bookMutatedIndex !== -1 && !bookUpdate.isDeleted) {
               // CASE UPDATE
-              mutatedBooks.splice(bookCacheIndex, 1);
+              mutatedBooks.splice(bookMutatedIndex, 1);
               const createBook = { ...bookUpdate };
               delete createBook.isDeleted;
               mutatedBooks.push(createBook);
