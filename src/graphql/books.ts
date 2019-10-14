@@ -10,13 +10,23 @@ export interface BooksData {
   books: Book[];
 }
 
-// eslint-disable-next-line
 export const BOOKS = gql`
-  {
+  query books {
     books {
       author
       id
       title
+    }
+  }
+`;
+
+export const BOOKS_UPDATE = gql`
+  query booksUpdate($lastModified: Int!) {
+    booksUpdate(lastModified: $lastModified) {
+      author
+      id
+      title
+      __typename
     }
   }
 `;
