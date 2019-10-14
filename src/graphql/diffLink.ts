@@ -1,7 +1,7 @@
 import { ApolloCache } from 'apollo-cache';
 import { ApolloClient } from 'apollo-client';
 import { ApolloLink, Operation } from 'apollo-link';
-import { Book, BOOKS, BOOKS_UPDATE, BooksData, BooksUpdateData } from './books';
+import { BOOKS, BOOKS_UPDATE, BooksData, BooksUpdateData } from './books';
 import { booksGetLastModified, booksSetLastModified } from './lastModified';
 
 // eslint-disable-next-line
