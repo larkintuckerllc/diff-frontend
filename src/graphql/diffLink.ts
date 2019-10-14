@@ -1,5 +1,5 @@
 import { ApolloLink } from 'apollo-link';
-import { BOOKS_UPDATE } from './books';
+import { BOOKS_UPDATE, BookUpdate } from './books';
 import { booksGetLastModified, booksSetLastModified } from './lastModified';
 
 export default new ApolloLink((operation, forward) => {
@@ -21,27 +21,25 @@ export default new ApolloLink((operation, forward) => {
     if (data === undefined || data === null) {
       return result;
     }
-    let mutatedResult = result;
+    let mutatedData = data;
     switch (operationName) {
       case 'books':
         if (booksLastModified === 0) {
-          mutatedResult = {
-            data: {
-              books: data.booksUpdate,
-            },
+          mutatedData = {
+            books: data.booksUpdate.filter(({ isDeleted }: BookUpdate) => !isDeleted),
           };
         } else {
           // TODO: CACHE
-          mutatedResult = {
-            data: {
-              books: [],
-            },
+          mutatedData = {
+            books: [],
           };
         }
         booksSetLastModified(1);
         break;
       default:
     }
-    return mutatedResult;
+    return {
+      data: mutatedData,
+    };
   });
 });

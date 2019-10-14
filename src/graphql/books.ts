@@ -6,6 +6,10 @@ export interface Book {
   title: string;
 }
 
+export interface BookUpdate extends Book {
+  isDeleted: boolean;
+}
+
 export interface BooksData {
   books: Book[];
 }
@@ -25,6 +29,7 @@ export const BOOKS_UPDATE = gql`
     booksUpdate(lastModified: $lastModified) {
       author
       id
+      isDeleted
       title
       __typename
     }
