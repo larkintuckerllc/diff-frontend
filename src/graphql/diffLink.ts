@@ -42,7 +42,7 @@ export default new ApolloLink((operation, forward) => {
             const bookCacheIndex = booksCacheData.books.findIndex(
               book => book.id === bookUpdate.id
             );
-            if (bookCacheIndex === -1) {
+            if (bookCacheIndex === -1 && !bookUpdate.isDeleted) {
               // CASE CREATE
               const createBook = { ...bookUpdate };
               delete createBook.isDeleted;
