@@ -45,13 +45,13 @@ const transformedData = (operationName: string, cache: ApolloCache<object>, data
       booksUpdate.forEach(bookUpdate => {
         const bookMutatedIndex = mutatedBooks.findIndex(book => book.id === bookUpdate.id);
         if (bookMutatedIndex === -1 && !bookUpdate.isDeleted) {
-          // CASE CREATE
+          // CREATE
           mutatedBooks.push(bookUpdate);
         } else if (bookMutatedIndex !== -1 && bookUpdate.isDeleted) {
-          // CASE DELETE
+          // DELETE
           mutatedBooks.splice(bookMutatedIndex, 1);
         } else if (bookMutatedIndex !== -1 && !bookUpdate.isDeleted) {
-          // CASE UPDATE
+          // UPDATE
           mutatedBooks.splice(bookMutatedIndex, 1);
           mutatedBooks.push(bookUpdate);
         }
