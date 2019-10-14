@@ -29,7 +29,7 @@ const transformedData = (operationName: string, cache: ApolloCache<object>, data
     case 'books': {
       const { booksUpdate } = data as BooksUpdateData;
       const booksLastModified = booksGetLastModified();
-      booksSetLastModified(1);
+      booksSetLastModified(Date.now());
       // FIRST LOAD
       if (booksLastModified === 0) {
         return {
