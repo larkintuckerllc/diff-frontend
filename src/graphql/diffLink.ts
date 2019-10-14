@@ -26,23 +26,45 @@ export default new ApolloLink((operation, forward) => {
     }
     let mutatedData = data;
     switch (operationName) {
-      case 'books':
+      case 'books': {
+        const booksUpdateData = data as BooksUpdateData;
         if (booksLastModified === 0) {
           mutatedData = {
-            books: (data as BooksUpdateData).booksUpdate.filter(({ isDeleted }) => !isDeleted),
+            books: booksUpdateData.booksUpdate.filter(({ isDeleted }) => !isDeleted),
           };
         } else {
-          const cacheData = cache.readQuery<BooksData>({ query: BOOKS });
-          if (cacheData === null) {
-            break;
+          const booksCacheData = cache.readQuery<BooksData>({ query: BOOKS });
+          if (booksCacheData === null) {
+            throw new Error(); // UNEXPECTED
           }
-          // TODO: LOOP THROUGH UPDATE, CREATE, UPDATE, DELETE
-          console.log(cacheData);
-          console.log(data);
-          mutatedData = cacheData;
+          const mutatedBooks = [...booksCacheData.books];
+          booksUpdateData.booksUpdate.forEach(bookUpdate => {
+            const bookCacheIndex = booksCacheData.books.findIndex(
+              book => book.id === bookUpdate.id
+            );
+            if (bookCacheIndex === -1) {
+              // CASE CREATE
+              const createBook = { ...bookUpdate };
+              delete createBook.isDeleted;
+              mutatedBooks.push(createBook);
+            } else if (bookUpdate.isDeleted) {
+              // CASE DELETE
+              mutatedBooks.splice(bookCacheIndex, 1);
+            } else {
+              // CASE UPDATE
+              mutatedBooks.splice(bookCacheIndex, 1);
+              const createBook = { ...bookUpdate };
+              delete createBook.isDeleted;
+              mutatedBooks.push(createBook);
+            }
+          });
+          mutatedData = {
+            books: mutatedBooks,
+          };
         }
         booksSetLastModified(1);
         break;
+      }
       default:
     }
     return {
